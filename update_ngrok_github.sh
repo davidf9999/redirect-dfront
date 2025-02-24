@@ -1,17 +1,18 @@
 #!/bin/bash
-
+#set -x
 # ====================== CONFIG ======================
-LOCAL_REPO_PATH="$HOME/redirect-dfront"  # Path to your local repo
+LOCAL_REPO_PATH="$HOME/code/redirect-dfront"  # Path to your local repo
 PORT=8501                                # Local app port (Streamlit default)
 GITHUB_USERNAME="davidf9999"
 REPO_NAME="redirect-dfront"
 COMMIT_MESSAGE="Update NGROK URL"
-NGROK_REGION="us"                        # Change if needed (us, eu, ap, etc.)
+NGROK_REGION="eu"                        # Change if needed (us, eu, ap, etc.)
 # ===================================================
 
 echo "Starting NGROK on port $PORT..."
 # Kill existing NGROK instances (optional, prevents duplicates)
-pkill ngrok
+# pkill ngrok
+pkill -f "ngrok http" || echo "No previous NGROK process found"
 
 # Run NGROK in the background
 nohup ngrok http $PORT --region=$NGROK_REGION > /dev/null 2>&1 &
