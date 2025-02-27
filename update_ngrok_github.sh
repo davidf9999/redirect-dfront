@@ -11,7 +11,6 @@ NGROK_REGION="eu"                        # Change if needed (us, eu, ap, etc.)
 
 echo "Starting NGROK on port $PORT..."
 # Kill existing NGROK instances (optional, prevents duplicates)
-# pkill ngrok
 pkill -f "ngrok http" || echo "No previous NGROK process found"
 
 # Run NGROK in the background
@@ -30,10 +29,31 @@ fi
 
 echo "NGROK URL: $NGROK_URL"
 
-# Update index.html
+# Update index.html with a JavaScript redirect that preserves the query string
 cd "$LOCAL_REPO_PATH" || { echo "Repo path not found"; exit 1; }
-echo '<html><head><meta http-equiv="refresh" content="0; url='"$NGROK_URL"'"></head><body></body></html>' > index.html
-echo "index.html updated with $NGROK_URL"
+
+cat <<EOF > index.html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Redirecting...</title>
+  <script>
+    // Grab the current URL's query string (e.g. ?code=...&state=...)
+    const queryString = window.location.search;
+    // Build the new URL by appending the query to your ephemeral ngrok domain
+    const newUrl = "$NGROK_URL" + queryString;
+    // Perform the redirect
+    window.location.replace(newUrl);
+  </script>
+</head>
+<body>
+  <p>Redirecting...</p>
+</body>
+</html>
+EOF
+
+echo "index.html updated with $NGROK_URL (JavaScript redirect preserving query params)"
 
 # Commit and push changes
 git add index.html
